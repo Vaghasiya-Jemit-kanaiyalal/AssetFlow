@@ -1,78 +1,18 @@
 import React, { useState } from 'react';
 import favicon from '../assets/favicon.png';
 
-const RESOURCE_CATEGORIES = {
-    'Electronics': [
-        'Laptop Dell XPS',
-        'MacBook Pro',
-        'iPad Pro',
-        'Projector',
-        'Laser Printer'
-    ],
-    'Furniture': [
-        'Ergonomic Office Chair',
-        'Adjustable Standing Desk',
-        'Conference Table',
-        'Whiteboard'
-    ],
-    'Rooms/Spaces': [
-        'Meeting Room C',
-        'Conference Hall A',
-        'Creative Studio B',
-        'Shared Desk 10'
-    ],
-    'AV System': [
-        'Polycom Studio',
-        'Smart TV 65"',
-        'Wireless Mic Set'
-    ],
-    'Vehicle': [
-        'Company Van',
-        'Electric Scooter'
-    ]
-};
-
 export default function Dashboard({ role, token, currentUser, onLogout, theme, toggleTheme }) {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const navTabsRef = React.useRef(null);
 
-    const [activeTab, setActiveTab] = useState('Dashboard');
-    const [departmentsList, setDepartmentsList] = useState([]);
-    const [orgSubTab, setOrgSubTab] = useState('Departments');
-    const [strategiesList, setStrategiesList] = useState([]);
     // ----------------------------------------------------
     // MASTER DATABASE STATE
-    const [assets, setAssets] = useState([
-        { id: 1, name: 'Dell Laptop', asset_tag: 'AF-0012', serial_number: 'SN-DELL-0012', type: 'Electronics', location: 'Bengaluru Office', status: 'ALLOCATED', custodian: 'Aditi Rao', department: 'Engineering' },
-        { id: 2, name: 'Projector', asset_tag: 'AF-0062', serial_number: 'SN-PROJ-0062', type: 'AV System', location: 'HQ Floor 2', status: 'UNDER MAINTENANCE', custodian: '—', department: 'Facilities' },
-        { id: 3, name: 'Office Chair', asset_tag: 'AF-0201', serial_number: 'SN-CHAIR-0201', type: 'Furniture', location: 'Warehouse East', status: 'AVAILABLE', custodian: '—', department: 'Logistics' },
-        { id: 4, name: 'MacBook Pro 16"', asset_tag: 'AF-0114', serial_number: 'SN-MAC-0114', type: 'Electronics', location: 'HQ Desk A4', status: 'ALLOCATED', custodian: 'Priya Shah', department: 'Engineering' },
-        { id: 5, name: 'Conference room B2', asset_tag: 'AF-0302', serial_number: 'SN-ROOM-0302', type: 'AV System', location: 'Floor 2 East', status: 'AVAILABLE', custodian: '—', department: 'Operations' },
-        { id: 6, name: 'Polycom Studio', asset_tag: 'AF-0440', serial_number: 'SN-POLY-0440', type: 'AV System', location: 'Floor 1 Room C', status: 'AVAILABLE', custodian: '—', department: 'Marketing' },
-        { id: 7, name: 'Company Van', asset_tag: 'AF-0343', serial_number: 'SN-VAN-0343', type: 'Vehicle', location: 'Garage Slot 3', status: 'AVAILABLE', custodian: '—', department: 'Logistics' }
-    ]);
-    const [activities, setActivities] = useState([
-        { id: 1, text: 'MacBook Pro AF-0114 allocated to Priya Shah — Engineering', badge: 'allocation', time: 'Mar 12' },
-        { id: 2, text: 'Asset Projector AF-0062 marked under maintenance: bulb replacement', badge: 'pending', time: 'Jan 04' },
-        { id: 3, text: 'New Office Chair AF-0201 registered in Warehouses', badge: 'register', time: 'Jan 02' }
-    ]);
-    const [users, setUsers] = useState([
-        { id: 1, name: 'AssetFlow Admin', email: 'admin@assetflow.com', role: 'Admin', department: 'Executive' },
-        { id: 2, name: 'Aditi Rao', email: 'aditi@assetflow.com', role: 'Dept Head', department: 'Engineering' },
-        { id: 3, name: 'Sana Iqbal', email: 'sana@assetflow.com', role: 'Dept Head', department: 'Field Ops' },
-        { id: 4, name: 'Rohan Mehta', email: 'rohan@assetflow.com', role: 'Dept Head', department: 'Facilities' },
-        { id: 5, name: 'Priya Shah', email: 'priya@assetflow.com', role: 'Employee', department: 'Engineering' },
-        { id: 6, name: 'Krutin', email: 'krutin@assetflow.com', role: 'Employee', department: 'Engineering' }
-    ]);
+    // ----------------------------------------------------
+    const [assets, setAssets] = useState([]);
+    const [activities, setActivities] = useState([]);
+    const [users, setUsers] = useState([]);
     const [categoryStrategy, setCategoryStrategy] = useState('[]');
     const [categoriesList, setCategoriesList] = useState(['Electronics', 'Furniture', 'AV System', 'Vehicle']);
-    const [issues, setIssues] = useState([
-        { id: 1, assetName: 'AF-0062 Projector', details: 'Projector bulb not turning on', status: 'Awaiting Action' },
-        { id: 2, assetName: 'AF-003 Dell laptop', details: 'ac unit noisy compressor', status: 'Approved' },
-        { id: 3, assetName: 'AF-0078 Forklift', details: 'Forklift tech assignment required', status: 'Technician Assigned' },
-        { id: 4, assetName: 'AF-897 Printer', details: 'Printer Jam parts ordered', status: 'Under Maintenance' },
-        { id: 5, assetName: 'AF-873 Chair', details: 'Chair repair resolved 7 Jul', status: 'Resolved' }
-    ]);
+    const [issues, setIssues] = useState([]);
     const [clearanceRequests, setClearanceRequests] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
 
@@ -460,7 +400,7 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     const [registerForm, setRegisterForm] = useState({ name: '', type: 'Electronics', location: '' });
     const [bookForm, setBookForm] = useState({ type: 'Electronics', resource: 'Laptop Dell XPS', timeSlot: '', date: '', priority: false });
     const [requestForm, setRequestForm] = useState({ assetId: '2', notes: '' });
-    const [issueForm, setIssueForm] = useState({ assetId: '1', details: '', photo: '' });
+    const [issueForm, setIssueForm] = useState({ assetId: '1', details: '', photo: '', photoDescription: '' });
     const [transferForm, setTransferForm] = useState({ assetId: '1', recipientName: '', notes: '' });
 
     // Active Asset under interaction
@@ -871,18 +811,34 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         setModalOpen(null);
     };
 
-    const handleRequest = (e) => {
+    const handleRequest = async (e) => {
         e.preventDefault();
-        const selectedAsset = assets.find(a => a.id === parseInt(requestForm.assetId));
-        if (!selectedAsset) return;
+        const targetAssetId = parseInt(requestForm.assetId);
+        const targetAsset = assets.find(a => a.id === targetAssetId);
+        if (!targetAsset) return;
 
-        setAssets(assets.map(a => a.id === selectedAsset.id ? { ...a, status: 'PENDING' } : a));
-        setActivities([
-            { id: Date.now(), text: `Requisition request submitted for ${selectedAsset.name}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
-
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/clearance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    recipientName: currentUser ? currentUser.name : 'Jane Smith',
+                    notes: requestForm.notes || 'Asset Requisition'
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to request asset');
+            }
+            fetchData();
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     const handleDirectAllocate = async (e) => {
@@ -1007,11 +963,11 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     };
 
     // Calculate metrics
-    const totalAssets = 24;
+    const totalAssets = assets.length;
     const totalAssetsCount = totalAssets;
-    const availableCountTotal = assets.filter(a => a.status === 'AVAILABLE').length + 10;
-    const activeBookingCountTotal = assets.filter(a => a.status === 'ACTIVE BOOKING').length + 4;
-    const pendingCountTotal = assets.filter(a => a.status === 'PENDING').length + 2;
+    const availableCountTotal = assets.filter(a => a.status === 'AVAILABLE').length;
+    const activeBookingCountTotal = assets.filter(a => a.status === 'ACTIVE BOOKING').length;
+    const pendingCountTotal = assets.filter(a => a.status === 'PENDING').length;
 
     // Filter table view assets by role
     const getRoleFilteredAssets = () => {
@@ -1019,7 +975,8 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         
         if (role === 'Employee') {
             // Employee sees items assigned to them OR available resources
-            baseList = assets.filter(a => a.custodian === 'Alex Johnson' || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
+            const currentUserName = currentUser ? currentUser.name : '';
+            baseList = assets.filter(a => a.custodian === currentUserName || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
         } else if (role === 'Dept Head') {
             // Dept Head sees department equipment
             baseList = assets.filter(a => a.department === 'Engineering' || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
@@ -2873,7 +2830,7 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                         value={issueForm.assetId}
                                         onChange={(e) => setIssueForm({...issueForm, assetId: e.target.value})}
                                     >
-                                        {assets.filter(a => a.custodian === 'Alex Johnson').map(a => (
+                                        {assets.filter(a => a.custodian === (currentUser ? currentUser.name : '')).map(a => (
                                             <option key={a.id} value={a.id}>{a.name}</option>
                                         ))}
                                     </select>
