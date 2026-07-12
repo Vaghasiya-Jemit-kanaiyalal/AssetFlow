@@ -156,4 +156,33 @@ router.post('/:id/resolve', authenticateToken, async (req, res) => {
     }
 });
 
+// PATCH /api/issues/:id/status - Update issue status (All authenticated users)
+router.patch('/:id/status', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ error: 'Status is required' });
+        }
+
+        const [issues] = await db.query('SELECT asset_id FROM issues WHERE id = ?', [id]);
+        if (issues.length === 0) {
+            return res.status(404).json({ error: 'Issue not found' });
+        }
+
+        await db.query("UPDATE issues SET status = ? WHERE id = ?", [status, id]);
+
+        // If status is 'Resolved', let's return the asset back to AVAILABLE!
+        if (status === 'Resolved') {
+            await db.query("UPDATE assets SET lifecycle_status = 'AVAILABLE', custodian_id = NULL, department = '—' WHERE id = ?", [issues[0].asset_id]);
+        }
+
+        res.status(200).json({ message: `Issue status updated to ${status}` });
+    } catch (error) {
+        console.error('Update issue status error:', error);
+        res.status(500).json({ error: 'Internal server error updating issue status' });
+    }
+});
+
 module.exports = router;
