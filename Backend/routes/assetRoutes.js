@@ -176,4 +176,44 @@ router.post('/:id/return', authenticateToken, async (req, res) => {
     }
 });
 
+// PATCH /api/assets/:id/allocate - Allocate an asset (Admin / Asset Manager / Dept Head)
+router.patch('/:id/allocate', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { custodianName, location, department } = req.body;
+
+        const [assets] = await db.query('SELECT name FROM assets WHERE id = ?', [id]);
+        if (assets.length === 0) {
+            return res.status(404).json({ error: 'Asset not found' });
+        }
+
+        let custodianId = null;
+        if (custodianName) {
+            const [users] = await db.query('SELECT id FROM users WHERE name = ?', [custodianName]);
+            if (users.length > 0) {
+                custodianId = users[0].id;
+            }
+        }
+
+        await db.query(
+            `UPDATE assets 
+             SET lifecycle_status = 'ALLOCATED', 
+                 custodian_id = ?, 
+                 location = ?, 
+                 department = ? 
+             WHERE id = ?`,
+            [custodianId, location || 'HQ Desk', department || 'Engineering', id]
+        );
+
+        // Log activity
+        const activityText = `Asset ${assets[0].name} allocated to ${custodianName || 'Employee'}`;
+        await db.query("INSERT INTO activities (text, badge) VALUES (?, 'register')", [activityText]);
+
+        res.status(200).json({ message: 'Asset allocated successfully' });
+    } catch (error) {
+        console.error('Allocate asset error:', error);
+        res.status(500).json({ error: 'Internal server error allocating asset' });
+    }
+});
+
 module.exports = router;

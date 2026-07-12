@@ -52,8 +52,8 @@ router.patch('/users/:id/role', authenticateToken, requireRole(['Admin']), async
     }
 });
 
-// GET /api/admin/strategy - Get all strategies (Admin only)
-router.get('/strategy', authenticateToken, requireRole(['Admin']), async (req, res) => {
+// GET /api/admin/strategy - Get all strategies (All authenticated roles)
+router.get('/strategy', authenticateToken, async (req, res) => {
     try {
         const [rows] = await db.query(
             'SELECT id, category, warranty_coverage AS warrantyCoverage, safety_audit AS safetyAudit FROM category_strategies'
@@ -133,6 +133,30 @@ router.put('/strategy', authenticateToken, requireRole(['Admin']), async (req, r
         await db.query('ROLLBACK');
         console.error('Update strategies error:', error);
         res.status(500).json({ error: 'Internal server error overwriting strategies' });
+    }
+});
+
+// DELETE /api/admin/users/:id - Delete a user (Admin only)
+router.delete('/users/:id', authenticateToken, requireRole(['Admin']), async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verify user exists and retrieve name for activity logging
+        const [users] = await db.query('SELECT name FROM users WHERE id = ?', [id]);
+        if (users.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        await db.query('DELETE FROM users WHERE id = ?', [id]);
+
+        // Log activity
+        const activityText = `User directory check: Employee '${users[0].name}' deleted`;
+        await db.query("INSERT INTO activities (text, badge) VALUES (?, 'pending')", [activityText]);
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Delete user error:', error);
+        res.status(500).json({ error: 'Internal server error deleting user' });
     }
 });
 

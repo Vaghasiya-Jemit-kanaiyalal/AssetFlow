@@ -27,6 +27,7 @@ const issueRoutes = require('./routes/issueRoutes');
 const clearanceRoutes = require('./routes/clearanceRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const activityRoutes = require('./routes/activityRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
@@ -35,6 +36,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/clearance', clearanceRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/departments', departmentRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS assets;
 DROP TABLE IF EXISTS category_strategies;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS activities;
+DROP TABLE IF EXISTS departments;
 
 
 -- =========================================================================
@@ -44,6 +45,18 @@ CREATE TABLE IF NOT EXISTS category_strategies (
     category VARCHAR(255) UNIQUE NOT NULL,
     warranty_coverage VARCHAR(255),
     safety_audit VARCHAR(255)
+);
+
+-- =========================================================================
+-- 2.5 DEPARTMENTS SETUP SCHEMA
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    head VARCHAR(255) DEFAULT '—',
+    parent_dept VARCHAR(255) DEFAULT '—',
+    status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================================================================
@@ -211,4 +224,16 @@ INSERT INTO category_strategies (category, warranty_coverage, safety_audit) VALU
 -- Passwords are hashed using bcrypt: $2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW
 INSERT INTO users (name, email, password_hash, role, department) VALUES
 ('AssetFlow Admin', 'admin@assetflow.com', '$2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW', 'Admin', 'Executive'),
-('Maintenance Shop', 'maintenance@assetflow.com', '$2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW', 'Employee', 'Maintenance');
+('Maintenance Shop', 'maintenance@assetflow.com', '$2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW', 'Employee', 'Maintenance');
+
+-- Seed departments
+INSERT INTO departments (name, head, parent_dept, status) VALUES 
+('Engineering', 'aditi rao', '—', 'Active'),
+('Facilities', 'rohan mehta', '—', 'Active'),
+('Field ops (east)', 'sana iqbal', 'Field Ops', 'Inactive');
+
+-- Seed assets matching Screen 4 wireframes
+INSERT INTO assets (name, asset_tag, serial_number, category_id, location, lifecycle_status, custodian_id, department, is_shared_bookable) VALUES
+('Dell Laptop', 'AF-0012', 'SN-DELL-0012', 1, 'bengaluru', 'ALLOCATED', 1, 'Engineering', FALSE),
+('Projector', 'AF-0062', 'SN-PROJ-0062', 1, 'HQ floor 2', 'UNDER MAINTENANCE', NULL, 'Facilities', FALSE),
+('Office chair', 'AF-0201', 'SN-CHAIR-0201', 2, 'Warehouse', 'AVAILABLE', NULL, 'Field ops (east)', FALSE);
