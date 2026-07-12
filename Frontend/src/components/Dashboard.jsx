@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import favicon from '../assets/favicon.png';
 
-<<<<<<< Updated upstream
-export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
-=======
 const RESOURCE_CATEGORIES = {
     'Electronics': [
         'Laptop Dell XPS',
@@ -43,66 +40,9 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     const [departmentsList, setDepartmentsList] = useState([]);
     const [orgSubTab, setOrgSubTab] = useState('Departments');
     const [strategiesList, setStrategiesList] = useState([]);
-
->>>>>>> Stashed changes
     // ----------------------------------------------------
     // MASTER DATABASE STATE
-    // ----------------------------------------------------
     const [assets, setAssets] = useState([
-<<<<<<< Updated upstream
-        { id: 1, name: 'MacBook Pro 16"', type: 'Electronics', location: 'London Hub', status: 'ALLOCATED', custodian: 'Alex Johnson', department: 'Engineering' },
-        { id: 2, name: 'Ergonomic Desk Chair', type: 'Furniture', location: 'Room 302', status: 'AVAILABLE', custodian: '—', department: '—' },
-        { id: 3, name: 'Conference Room C Video System', type: 'AV System', location: 'Meeting Room C', status: 'ACTIVE BOOKING', custodian: 'Sarah Connor', department: 'Marketing' },
-        { id: 4, name: 'Toyota Prius (Company Pool)', type: 'Vehicle', location: 'Garage A', status: 'PENDING', custodian: 'Mark R.', department: 'Operations' },
-        { id: 5, name: 'Dell UltraSharp 32" Monitor', type: 'Electronics', location: 'Warehouse 1', status: 'AVAILABLE', custodian: '—', department: '—' },
-        { id: 6, name: 'Department Head Desk Laptop', type: 'Electronics', location: 'Office 405', status: 'ALLOCATED', custodian: 'Dr. Bruce Banner', department: 'Engineering' }
-    ]);
-
-    const [activities, setActivities] = useState([
-        { id: 1, text: 'John Doe checked out MacBook Pro 16"', time: '10 mins ago', badge: 'allocation' },
-        { id: 2, text: 'Meeting Room C booked by Sarah Connor', time: '1 hr ago', badge: 'booking' },
-        { id: 3, text: 'Mark R. requested Toyota Prius allocation', time: '3 hrs ago', badge: 'pending' },
-        { id: 4, text: 'New Ergonomic Desk Chair registered', time: 'Yesterday', badge: 'register' }
-    ]);
-
-    // Role-based mock directory (For Admin controls)
-    const [users, setUsers] = useState([
-        { id: 101, name: 'Alex Johnson', role: 'Employee', department: 'Engineering' },
-        { id: 102, name: 'Dr. Bruce Banner', role: 'Dept Head', department: 'Engineering' },
-        { id: 103, name: 'Sarah Connor', role: 'Employee', department: 'Marketing' },
-        { id: 104, name: 'Tony Stark', role: 'Asset Manager', department: 'Operations' },
-        { id: 105, name: 'Nick Fury', role: 'Admin', department: 'Executive' }
-    ]);
-
-    // JSON Category Strategy (For Admin schema strategies)
-    const [categoryStrategy, setCategoryStrategy] = useState(
-        JSON.stringify([
-            { category: "Electronics", warrantyCoverage: "36 Months", safetyAudit: "Quarterly" },
-            { category: "Furniture", warrantyCoverage: "Lifetime", safetyAudit: "Bi-Annually" },
-            { category: "AV System", warrantyCoverage: "24 Months", safetyAudit: "Quarterly" },
-            { category: "Vehicle", warrantyCoverage: "60 Months", safetyAudit: "Annually" }
-        ], null, 4)
-    );
-
-    const [categoriesList, setCategoriesList] = useState(['Electronics', 'Furniture', 'AV System', 'Vehicle']);
-
-    const handleSaveSchema = () => {
-        try {
-            const parsed = JSON.parse(categoryStrategy);
-            if (Array.isArray(parsed)) {
-                const list = parsed.map(item => item.category || item.Category).filter(Boolean);
-                if (list.length > 0) {
-                    setCategoriesList(list);
-                    alert('Success: Platform categories updated successfully! New options compiled: ' + list.join(', '));
-                } else {
-                    alert('Error: JSON objects must include a "category" property.');
-                }
-            } else {
-                alert('Error: JSON must be configured as an array of category configurations.');
-            }
-        } catch (e) {
-            alert('Error: Invalid JSON syntax. Please verify brackets, quotes, and commas.');
-=======
         { id: 1, name: 'Dell Laptop', asset_tag: 'AF-0012', serial_number: 'SN-DELL-0012', type: 'Electronics', location: 'Bengaluru Office', status: 'ALLOCATED', custodian: 'Aditi Rao', department: 'Engineering' },
         { id: 2, name: 'Projector', asset_tag: 'AF-0062', serial_number: 'SN-PROJ-0062', type: 'AV System', location: 'HQ Floor 2', status: 'UNDER MAINTENANCE', custodian: '—', department: 'Facilities' },
         { id: 3, name: 'Office Chair', asset_tag: 'AF-0201', serial_number: 'SN-CHAIR-0201', type: 'Furniture', location: 'Warehouse East', status: 'AVAILABLE', custodian: '—', department: 'Logistics' },
@@ -477,19 +417,10 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
             fetchData();
         } catch (err) {
             alert(err.message);
->>>>>>> Stashed changes
         }
     };
 
-    // Issue logs queue (For Employee reports and Asset Manager maintenance dispatches)
-    const [issues, setIssues] = useState([
-        { id: 201, assetName: 'Department Head Desk Laptop', reportedBy: 'Dr. Bruce Banner', details: 'Battery swelling and keyboard keys unresponsive', status: 'Awaiting Action' }
-    ]);
 
-    // Approvals/Clearance Queue (For Department Head workflows)
-    const [clearanceRequests, setClearanceRequests] = useState([
-        { id: 301, assetName: 'MacBook Pro 16"', requestType: 'Transfer', fromUser: 'John Doe', toUser: 'Jane Smith', department: 'Engineering', notes: 'Handing off code workstation' }
-    ]);
 
     // ----------------------------------------------------
     // MODALS & INPUT STATES
@@ -540,14 +471,6 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     // ----------------------------------------------------
     
     // Admin promotional tools
-<<<<<<< Updated upstream
-    const handleUpdateUserRole = (userId, newRole) => {
-        setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-        setActivities([
-            { id: Date.now(), text: `User role for ${users.find(u => u.id === userId).name} updated to ${newRole}`, time: 'Just now', badge: 'register' },
-            ...activities
-        ]);
-=======
     const handleUpdateUserRole = async (userId, newRole) => {
         try {
             const response = await fetch(`${API_URL}/api/admin/users/${userId}/role`, {
@@ -558,39 +481,62 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                 },
                 body: JSON.stringify({ role: newRole })
             });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Failed to update user role');
-            alert('User role assigned successfully!');
-            fetchData();
+            if (response.ok) {
+                alert('Success: Role assigned via ERP cloud!');
+                fetchData();
+                return;
+            }
         } catch (err) {
-            alert(err.message);
+            console.warn("Backend unavailable, falling back to local state:", err);
         }
->>>>>>> Stashed changes
+        // Local state fallback
+        setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+        setActivities([
+            { id: Date.now(), text: `User role for ${users.find(u => u.id === userId)?.name || 'User'} updated to ${newRole}`, time: 'Just now', badge: 'register' },
+            ...activities
+        ]);
     };
 
     // Employee Issue Reporting
-    const submitIssueLog = (e) => {
+    const submitIssueLog = async (e) => {
         e.preventDefault();
-<<<<<<< Updated upstream
-        const targetAsset = assets.find(a => a.id === parseInt(issueForm.assetId));
-        if (!targetAsset) return;
-=======
         const targetAssetId = parseInt(issueForm.assetId);
         const targetAsset = assets.find(a => a.id === targetAssetId);
         if (!targetAsset) {
             alert('No valid asset selected. You can only report issues for assets assigned to you.');
             return;
         }
->>>>>>> Stashed changes
 
-        // Combine description fields if both are filled
-        const combinedDetails = issueForm.details + 
-            (issueForm.photoDescription ? ` | Visual Details: ${issueForm.photoDescription}` : '');
+        const combinedDetails = issueForm.details;
 
+        try {
+            const response = await fetch(`${API_URL}/api/issues`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    details: combinedDetails,
+                    photo_description: issueForm.photo || ''
+                })
+            });
+            if (response.ok) {
+                fetchData();
+                setIssueForm({ assetId: '1', details: '', photo: '' });
+                setModalOpen(null);
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const newIssue = {
             id: Date.now(),
             assetName: targetAsset.name,
-            reportedBy: 'Alex Johnson',
+            reportedBy: currentUser ? currentUser.name : 'Alex Johnson',
             details: combinedDetails,
             status: 'Awaiting Action'
         };
@@ -601,23 +547,48 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
             ...activities
         ]);
 
-        setIssueForm({ assetId: '1', details: '', photo: '', photoDescription: '' });
+        setIssueForm({ assetId: '1', details: '', photo: '' });
         setModalOpen(null);
     };
 
     // Employee Transfer sequence
-    const submitTransferRequest = (e) => {
+    const submitTransferRequest = async (e) => {
         e.preventDefault();
-        const targetAsset = assets.find(a => a.id === parseInt(transferForm.assetId));
+        const targetAssetId = parseInt(transferForm.assetId);
+        const targetAsset = assets.find(a => a.id === targetAssetId);
         if (!targetAsset) return;
 
+        try {
+            const response = await fetch(`${API_URL}/api/clearance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    recipientName: transferForm.recipientName,
+                    notes: transferForm.notes
+                })
+            });
+            if (response.ok) {
+                fetchData();
+                setTransferForm({ assetId: '1', recipientName: '', notes: '' });
+                setModalOpen(null);
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const newClearance = {
             id: Date.now(),
             assetName: targetAsset.name,
             requestType: 'Transfer',
-            fromUser: 'Alex Johnson',
+            fromUser: currentUser ? currentUser.name : 'Alex Johnson',
             toUser: transferForm.recipientName,
-            department: 'Engineering',
+            department: targetAsset.department || 'Engineering',
             notes: transferForm.notes
         };
 
@@ -633,12 +604,27 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     };
 
     // Supervisor Approvals
-    const handleApproveClearance = (reqId) => {
+    const handleApproveClearance = async (reqId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/clearance/${reqId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const req = clearanceRequests.find(r => r.id === reqId);
         if (!req) return;
 
-        // Swap custodian and clear pending status
-        setAssets(assets.map(a => a.name === req.assetName ? { ...a, status: 'ALLOCATED', custodian: req.toUser, department: req.department } : a));
+        setAssets(assets.map(a => a.name === req.assetName ? { ...a, status: 'ALLOCATED', custodian: req.toUser, department: req.department || 'Engineering' } : a));
         setClearanceRequests(clearanceRequests.filter(r => r.id !== reqId));
         setActivities([
             { id: Date.now(), text: `Transfer of ${req.assetName} to ${req.toUser} approved`, time: 'Just now', badge: 'allocation' },
@@ -646,11 +632,26 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         ]);
     };
 
-    const handleRejectClearance = (reqId) => {
+    const handleRejectClearance = async (reqId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/clearance/${reqId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const req = clearanceRequests.find(r => r.id === reqId);
         if (!req) return;
 
-        // Restore allocated status
         setAssets(assets.map(a => a.name === req.assetName ? { ...a, status: 'ALLOCATED' } : a));
         setClearanceRequests(clearanceRequests.filter(r => r.id !== reqId));
         setActivities([
@@ -660,7 +661,23 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     };
 
     // Employee initiates Return Sequence
-    const handleReturnAsset = (assetId) => {
+    const handleReturnAsset = async (assetId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/assets/${assetId}/return`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const targetAsset = assets.find(a => a.id === assetId);
         if (!targetAsset) return;
 
@@ -672,7 +689,23 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
     };
 
     // Asset Manager actions
-    const handleDispatchMaintenance = (issueId) => {
+    const handleDispatchMaintenance = async (issueId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/issues/${issueId}/dispatch`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const targetIssue = issues.find(i => i.id === issueId);
         if (!targetIssue) return;
 
@@ -684,7 +717,23 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         ]);
     };
 
-    const handleResolveMaintenance = (issueId) => {
+    const handleResolveMaintenance = async (issueId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/issues/${issueId}/resolve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const targetIssue = issues.find(i => i.id === issueId);
         if (!targetIssue) return;
 
@@ -696,20 +745,65 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         ]);
     };
 
-    const handleMarkDiscrepancy = (assetId, type) => {
-        // Mark missing or damaged
+    const handleMarkDiscrepancy = async (assetId, type) => {
+        try {
+            const response = await fetch(`${API_URL}/api/assets/${assetId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: type })
+            });
+            if (response.ok) {
+                fetchData();
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         setAssets(assets.map(a => a.id === assetId ? { ...a, status: type } : a));
         setActivities([
-            { id: Date.now(), text: `Audit check: ${assets.find(a => a.id === assetId).name} marked as ${type}`, time: 'Just now', badge: 'pending' },
+            { id: Date.now(), text: `Audit check: ${assets.find(a => a.id === assetId)?.name || 'Asset'} marked as ${type}`, time: 'Just now', badge: 'pending' },
             ...activities
         ]);
     };
 
     // Basic Action triggers
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         if (!registerForm.name.trim()) return;
 
+        try {
+            const response = await fetch(`${API_URL}/api/assets`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: registerForm.name,
+                    type: registerForm.type,
+                    location: registerForm.location || 'Central Hub',
+                    custodian: '—',
+                    department: '—',
+                    status: 'AVAILABLE',
+                    is_shared_bookable: false
+                })
+            });
+            if (response.ok) {
+                fetchData();
+                setRegisterForm({ name: '', type: 'Electronics', location: '' });
+                setModalOpen(null);
+                return;
+            }
+        } catch (err) {
+            console.warn("Backend unavailable, falling back to local state:", err);
+        }
+
+        // Fallback
         const newAsset = {
             id: Date.now(),
             name: registerForm.name,
@@ -730,30 +824,10 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
         setModalOpen(null);
     };
 
-    const handleBook = (e) => {
+    const handleBook = async (e) => {
         e.preventDefault();
         if (!bookForm.timeSlot || !bookForm.date) return;
 
-<<<<<<< Updated upstream
-        const newBooking = {
-            id: Date.now(),
-            name: bookForm.resource,
-            type: 'AV System',
-            location: 'Meeting Room C',
-            status: 'ACTIVE BOOKING',
-            custodian: 'Alex Johnson',
-            department: 'Engineering'
-        };
-
-        setAssets([newBooking, ...assets]);
-        setActivities([
-            { id: Date.now(), text: `${bookForm.priority ? '[PRIORITY] ' : ''}${bookForm.resource} reserved for ${bookForm.date}`, time: 'Just now', badge: 'booking' },
-            ...activities
-        ]);
-
-        setBookForm({ resource: 'Meeting Room C', timeSlot: '', date: '', priority: false });
-        setModalOpen(null);
-=======
         try {
             const response = await fetch(`${API_URL}/api/bookings`, {
                 method: 'POST',
@@ -769,17 +843,32 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                     priority: bookForm.priority
                 })
             });
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || 'Failed to reserve resource');
+            if (response.ok) {
+                fetchData();
+                setBookForm({ type: 'Electronics', resource: 'Laptop Dell XPS', timeSlot: '', date: '', priority: false });
+                setModalOpen(null);
+                return;
             }
-            fetchData();
-            setBookForm({ type: 'Electronics', resource: 'Laptop Dell XPS', timeSlot: '', date: '', priority: false });
-            setModalOpen(null);
         } catch (err) {
-            alert(err.message);
+            console.warn("Backend unavailable, falling back to local state:", err);
         }
->>>>>>> Stashed changes
+
+        // Fallback
+        const newBooking = {
+            id: Date.now(),
+            resourceName: bookForm.resource,
+            userName: currentUser ? currentUser.name : 'Alex Johnson',
+            startTime: `${bookForm.date}T${bookForm.timeSlot.split(' - ')[0] || '09:00'}:00`,
+            endTime: `${bookForm.date}T${bookForm.timeSlot.split(' - ')[1] || '10:00'}:00`,
+            status: 'Upcoming'
+        };
+        setBookingsList([newBooking, ...bookingsList]);
+        setActivities([
+            { id: Date.now(), text: `${bookForm.priority ? '[PRIORITY] ' : ''}${bookForm.resource} reserved for ${bookForm.date}`, time: 'Just now', badge: 'booking' },
+            ...activities
+        ]);
+        setBookForm({ type: 'Electronics', resource: 'Laptop Dell XPS', timeSlot: '', date: '', priority: false });
+        setModalOpen(null);
     };
 
     const handleRequest = (e) => {
@@ -1022,61 +1111,10 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                             </button>
                         )}
 
-<<<<<<< Updated upstream
-                    {/* User profile dropdown - click to sign out */}
-                    <div className="user-profile-badge-group-hifi" onClick={onLogout} title="Sign Out">
-                        <div className="user-profile-circle">AF</div>
-                        <div className="user-profile-info-text">
-                            <span className="profile-name-span">Alex Johnson</span>
-                            <span className="profile-role-span">{role === 'Dept Head' ? 'Dept Head' : role}</span>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="profile-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                </div>
-            </header>
-
-            {/* Welcome banner and role info */}
-            <div className="welcome-banner-section-hifi">
-                <div className="welcome-text-block">
-                    <span className="welcome-greet">Welcome back, Alex! 👋</span>
-                    <h1 className="welcome-title">Manage <span className="highlight-dashboard">Dashboard</span></h1>
-                    <p className="welcome-sub">Here's an overview of your assets and activities.</p>
-                </div>
-
-                {/* Desktop representation showcase card graphic */}
-                <div className="welcome-showcase-graphic">
-                    <div className="showcase-desk-card">
-                        <div className="showcase-laptop">
-                            <div className="laptop-screen"></div>
-                            <div className="laptop-keyboard"></div>
-                        </div>
-                        <div className="showcase-chair"></div>
-                        <div className="showcase-plant"></div>
-                    </div>
-                </div>
-            </div>
-
-            <main className="dash-content-grid">
-                {/* Left Column Area */}
-                <section className="dash-main-pane">
-                    
-                    {/* HiFi Metrics Grid */}
-                    <div className="metrics-grid-hifi">
-                        <div className="metric-card-hifi">
-                            <div className="metric-icon-square bg-blue-dim text-blue">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                            </div>
-                            <div className="metric-info">
-                                <span className="metric-label-hifi">Total Assets</span>
-                                <span className="metric-value-hifi">{totalAssetsCount}</span>
-                                <span className="metric-subtext-hifi">All available assets</span>
-                            </div>
-=======
                         {/* Notification icon showing count */}
                         <div className="notify-bell-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="notify-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                             <span className="notify-badge-count">3</span>
->>>>>>> Stashed changes
                         </div>
 
                         {/* Theme Toggler switcher button */}
@@ -1942,18 +1980,47 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                                     {departmentsList.map(dept => (
                                                         <option key={dept.id} value={dept.name}>{dept.name}</option>
                                                     ))}
-                                                </select>
+                                                    <select 
+                                                        value={newEmpForm.department} 
+                                                        onChange={(e) => setNewEmpForm({...newEmpForm, department: e.target.value})}
+                                                    >
+                                                        <option value="—">— None —</option>
+                                                        {departmentsList.map(dept => (
+                                                            <option key={dept.id} value={dept.name}>{dept.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <button type="submit" className="btn-primary-gradient" style={{ marginTop: '12px' }}>
-                                            Register Employee
-                                        </button>
-                                    </form>
-                                )}
+                                            <button type="submit" className="btn-primary-gradient" style={{ marginTop: '12px' }}>
+                                                Register Employee
+                                            </button>
+                                        </form>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Logout button at the right side below */}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px' }}>
+                                <button 
+                                    onClick={onLogout} 
+                                    className="btn-primary-gradient" 
+                                    style={{ 
+                                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                        color: '#ffffff',
+                                        padding: '10px 24px',
+                                        borderRadius: '10px',
+                                        fontWeight: '600',
+                                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    Log Out
+                                </button>
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
 
                 {/* TAB VIEW 3: ASSETS VIEW */}
                 {activeTab === 'Assets' && (
@@ -2125,29 +2192,6 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                                             </div>
                                                         </div>
                                                     </div>
-<<<<<<< Updated upstream
-                                                </td>
-                                                <td><span className="type-label-text">{asset.type}</span></td>
-                                                <td><span className="loc-label-text">{asset.location}</span></td>
-                                                <td>
-                                                    <span className={`status-badge-hifi badge-hifi-${asset.status.replace(/\s+/g, '-').toLowerCase()}`}>
-                                                        {asset.status}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span className="booking-info-text">{asset.custodian}</span>
-                                                </td>
-                                                <td>
-                                                    {/* Context-aware action buttons depending on active logged in Role */}
-                                                    {role === 'Employee' && asset.custodian === 'Alex Johnson' && (
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <button onClick={() => handleReturnAsset(asset.id)} className="btn-table-view-hifi" style={{ background: '#fef2f2', color: '#ef4444' }}>
-                                                                Return
-                                                            </button>
-                                                            <button onClick={() => { setSelectedAssetId(asset.id); setModalOpen('transfer'); }} className="btn-table-view-hifi">
-                                                                Hand-off
-                                                            </button>
-=======
                                                     <div className="form-group">
                                                         <label>Reason for Transfer</label>
                                                         <div className="input-wrapper">
@@ -2158,7 +2202,6 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                                                 required
                                                                 style={{ width: '100%', height: '80px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-input)', color: 'var(--text-primary)' }}
                                                             />
->>>>>>> Stashed changes
                                                         </div>
                                                     </div>
                                                     <button type="submit" className="btn-primary-gradient" style={{ marginTop: '12px' }}>
@@ -2183,29 +2226,6 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                                                 ))}
                                                             </select>
                                                         </div>
-<<<<<<< Updated upstream
-                                                    )}
-                                                    {/* Default fallback View pill */}
-                                                    {!(role === 'Employee' && asset.custodian === 'Alex Johnson') && !(role === 'Asset Manager') && (
-                                                        <button className="btn-table-view-hifi">
-                                                            View
-                                                        </button>
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <div className="action-three-dots">⋮</div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="7" className="table-empty">No resources found in current directory view.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-=======
                                                     </div>
                                                     <div className="form-group" style={{ flex: 1 }}>
                                                         <label>Desk / Office Location</label>
@@ -2225,7 +2245,6 @@ export default function Dashboard({ role, token, currentUser, onLogout, theme, t
                                                 </button>
                                             </form>
                                         )}
->>>>>>> Stashed changes
 
                                         {/* Allocation history list matching Screen 5 mockup */}
                                         <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
