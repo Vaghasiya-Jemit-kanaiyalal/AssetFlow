@@ -1,75 +1,125 @@
 import React, { useState } from 'react';
 import favicon from '../assets/favicon.png';
 
-export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
+export default function Dashboard({ role, token, currentUser, onLogout, theme, toggleTheme }) {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     // ----------------------------------------------------
     // MASTER DATABASE STATE
     // ----------------------------------------------------
-    const [assets, setAssets] = useState([
-        { id: 1, name: 'MacBook Pro 16"', type: 'Electronics', location: 'London Hub', status: 'ALLOCATED', custodian: 'Alex Johnson', department: 'Engineering' },
-        { id: 2, name: 'Ergonomic Desk Chair', type: 'Furniture', location: 'Room 302', status: 'AVAILABLE', custodian: '—', department: '—' },
-        { id: 3, name: 'Conference Room C Video System', type: 'AV System', location: 'Meeting Room C', status: 'ACTIVE BOOKING', custodian: 'Sarah Connor', department: 'Marketing' },
-        { id: 4, name: 'Toyota Prius (Company Pool)', type: 'Vehicle', location: 'Garage A', status: 'PENDING', custodian: 'Mark R.', department: 'Operations' },
-        { id: 5, name: 'Dell UltraSharp 32" Monitor', type: 'Electronics', location: 'Warehouse 1', status: 'AVAILABLE', custodian: '—', department: '—' },
-        { id: 6, name: 'Department Head Desk Laptop', type: 'Electronics', location: 'Office 405', status: 'ALLOCATED', custodian: 'Dr. Bruce Banner', department: 'Engineering' }
-    ]);
-
-    const [activities, setActivities] = useState([
-        { id: 1, text: 'John Doe checked out MacBook Pro 16"', time: '10 mins ago', badge: 'allocation' },
-        { id: 2, text: 'Meeting Room C booked by Sarah Connor', time: '1 hr ago', badge: 'booking' },
-        { id: 3, text: 'Mark R. requested Toyota Prius allocation', time: '3 hrs ago', badge: 'pending' },
-        { id: 4, text: 'New Ergonomic Desk Chair registered', time: 'Yesterday', badge: 'register' }
-    ]);
-
-    // Role-based mock directory (For Admin controls)
-    const [users, setUsers] = useState([
-        { id: 101, name: 'Alex Johnson', role: 'Employee', department: 'Engineering' },
-        { id: 102, name: 'Dr. Bruce Banner', role: 'Dept Head', department: 'Engineering' },
-        { id: 103, name: 'Sarah Connor', role: 'Employee', department: 'Marketing' },
-        { id: 104, name: 'Tony Stark', role: 'Asset Manager', department: 'Operations' },
-        { id: 105, name: 'Nick Fury', role: 'Admin', department: 'Executive' }
-    ]);
-
-    // JSON Category Strategy (For Admin schema strategies)
-    const [categoryStrategy, setCategoryStrategy] = useState(
-        JSON.stringify([
-            { category: "Electronics", warrantyCoverage: "36 Months", safetyAudit: "Quarterly" },
-            { category: "Furniture", warrantyCoverage: "Lifetime", safetyAudit: "Bi-Annually" },
-            { category: "AV System", warrantyCoverage: "24 Months", safetyAudit: "Quarterly" },
-            { category: "Vehicle", warrantyCoverage: "60 Months", safetyAudit: "Annually" }
-        ], null, 4)
-    );
-
+    const [assets, setAssets] = useState([]);
+    const [activities, setActivities] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [categoryStrategy, setCategoryStrategy] = useState('[]');
     const [categoriesList, setCategoriesList] = useState(['Electronics', 'Furniture', 'AV System', 'Vehicle']);
+    const [issues, setIssues] = useState([]);
+    const [clearanceRequests, setClearanceRequests] = useState([]);
+    const [loadingData, setLoadingData] = useState(false);
 
-    const handleSaveSchema = () => {
+    const fetchData = async () => {
         try {
-            const parsed = JSON.parse(categoryStrategy);
-            if (Array.isArray(parsed)) {
-                const list = parsed.map(item => item.category || item.Category).filter(Boolean);
-                if (list.length > 0) {
-                    setCategoriesList(list);
-                    alert('Success: Platform categories updated successfully! New options compiled: ' + list.join(', '));
-                } else {
-                    alert('Error: JSON objects must include a "category" property.');
-                }
-            } else {
-                alert('Error: JSON must be configured as an array of category configurations.');
+            setLoadingData(true);
+            // 1. Fetch assets
+            const assetsRes = await fetch(`${API_URL}/api/assets`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (assetsRes.ok) {
+                const assetsData = await assetsRes.json();
+                setAssets(assetsData);
             }
-        } catch (e) {
-            alert('Error: Invalid JSON syntax. Please verify brackets, quotes, and commas.');
+
+            // 2. Fetch activities
+            const activitiesRes = await fetch(`${API_URL}/api/activities`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (activitiesRes.ok) {
+                const activitiesData = await activitiesRes.json();
+                setActivities(activitiesData);
+            }
+
+            // 3. Fetch issues
+            const issuesRes = await fetch(`${API_URL}/api/issues`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (issuesRes.ok) {
+                const issuesData = await issuesRes.json();
+                setIssues(issuesData);
+            }
+
+            // 4. Fetch clearances
+            if (role === 'Dept Head' || role === 'Admin') {
+                const clearanceRes = await fetch(`${API_URL}/api/clearance`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (clearanceRes.ok) {
+                    const clearanceData = await clearanceRes.json();
+                    setClearanceRequests(clearanceData);
+                }
+            }
+
+            // 5. Fetch user directory & strategies (Admin only)
+            if (role === 'Admin') {
+                const usersRes = await fetch(`${API_URL}/api/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (usersRes.ok) {
+                    const usersData = await usersRes.json();
+                    setUsers(usersData);
+                }
+
+                const strategyRes = await fetch(`${API_URL}/api/admin/strategy`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (strategyRes.ok) {
+                    const strategyData = await strategyRes.json();
+                    const strategiesArray = strategyData.strategies || strategyData;
+                    setCategoryStrategy(JSON.stringify(strategiesArray, null, 4));
+                    const list = strategiesArray.map(item => item.category).filter(Boolean);
+                    if (list.length > 0) {
+                        setCategoriesList(list);
+                    }
+                }
+            }
+            setLoadingData(false);
+        } catch (err) {
+            console.error("Error fetching dashboard data:", err);
+            setLoadingData(false);
         }
     };
 
-    // Issue logs queue (For Employee reports and Asset Manager maintenance dispatches)
-    const [issues, setIssues] = useState([
-        { id: 201, assetName: 'Department Head Desk Laptop', reportedBy: 'Dr. Bruce Banner', details: 'Battery swelling and keyboard keys unresponsive', status: 'Awaiting Action' }
-    ]);
+    React.useEffect(() => {
+        if (token) {
+            fetchData();
+        }
+    }, [token, role]);
 
-    // Approvals/Clearance Queue (For Department Head workflows)
-    const [clearanceRequests, setClearanceRequests] = useState([
-        { id: 301, assetName: 'MacBook Pro 16"', requestType: 'Transfer', fromUser: 'John Doe', toUser: 'Jane Smith', department: 'Engineering', notes: 'Handing off code workstation' }
-    ]);
+    const handleSaveSchema = async () => {
+        try {
+            const parsed = JSON.parse(categoryStrategy);
+            if (!Array.isArray(parsed)) {
+                alert('Error: JSON must be configured as an array of category configurations.');
+                return;
+            }
+            const response = await fetch(`${API_URL}/api/admin/strategy`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(parsed)
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update strategy schemas');
+            }
+            const list = data.strategies.map(item => item.category).filter(Boolean);
+            setCategoriesList(list);
+            fetchData();
+            alert('Success: Platform categories updated successfully!');
+        } catch (e) {
+            alert('Error: ' + e.message);
+        }
+    };
 
     // ----------------------------------------------------
     // MODALS & INPUT STATES
@@ -82,7 +132,7 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
     const [registerForm, setRegisterForm] = useState({ name: '', type: 'Electronics', location: '' });
     const [bookForm, setBookForm] = useState({ resource: 'Meeting Room C', timeSlot: '', date: '', priority: false });
     const [requestForm, setRequestForm] = useState({ assetId: '2', notes: '' });
-    const [issueForm, setIssueForm] = useState({ assetId: '1', details: '', photo: '' });
+    const [issueForm, setIssueForm] = useState({ assetId: '1', details: '', photo: '', photoDescription: '' });
     const [transferForm, setTransferForm] = useState({ assetId: '1', recipientName: '', notes: '' });
 
     // Active Asset under interaction
@@ -93,203 +143,298 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
     // ----------------------------------------------------
     
     // Admin promotional tools
-    const handleUpdateUserRole = (userId, newRole) => {
-        setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-        setActivities([
-            { id: Date.now(), text: `User role for ${users.find(u => u.id === userId).name} updated to ${newRole}`, time: 'Just now', badge: 'register' },
-            ...activities
-        ]);
+    const handleUpdateUserRole = async (userId, newRole) => {
+        try {
+            const response = await fetch(`${API_URL}/api/admin/users/${userId}/role`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ role: newRole })
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Failed to update user role');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Employee Issue Reporting
-    const submitIssueLog = (e) => {
+    const submitIssueLog = async (e) => {
         e.preventDefault();
-        const targetAsset = assets.find(a => a.id === parseInt(issueForm.assetId));
+        const targetAssetId = parseInt(issueForm.assetId);
+        const targetAsset = assets.find(a => a.id === targetAssetId);
         if (!targetAsset) return;
 
-        // Combine description fields if both are filled
         const combinedDetails = issueForm.details + 
             (issueForm.photoDescription ? ` | Visual Details: ${issueForm.photoDescription}` : '');
 
-        const newIssue = {
-            id: Date.now(),
-            assetName: targetAsset.name,
-            reportedBy: 'Alex Johnson',
-            details: combinedDetails,
-            status: 'Awaiting Action'
-        };
-
-        setIssues([newIssue, ...issues]);
-        setActivities([
-            { id: Date.now(), text: `Issue reported on ${targetAsset.name} by Alex`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
-
-        setIssueForm({ assetId: '1', details: '', photo: '', photoDescription: '' });
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/issues`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    details: combinedDetails,
+                    photo_description: issueForm.photo
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to report issue');
+            }
+            fetchData();
+            setIssueForm({ assetId: '1', details: '', photo: '', photoDescription: '' });
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Employee Transfer sequence
-    const submitTransferRequest = (e) => {
+    const submitTransferRequest = async (e) => {
         e.preventDefault();
-        const targetAsset = assets.find(a => a.id === parseInt(transferForm.assetId));
+        const targetAssetId = parseInt(transferForm.assetId);
+        const targetAsset = assets.find(a => a.id === targetAssetId);
         if (!targetAsset) return;
 
-        const newClearance = {
-            id: Date.now(),
-            assetName: targetAsset.name,
-            requestType: 'Transfer',
-            fromUser: 'Alex Johnson',
-            toUser: transferForm.recipientName,
-            department: 'Engineering',
-            notes: transferForm.notes
-        };
-
-        setClearanceRequests([newClearance, ...clearanceRequests]);
-        setAssets(assets.map(a => a.id === targetAsset.id ? { ...a, status: 'PENDING' } : a));
-        setActivities([
-            { id: Date.now(), text: `Transfer request logged for ${targetAsset.name}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
-
-        setTransferForm({ assetId: '1', recipientName: '', notes: '' });
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/clearance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    recipientName: transferForm.recipientName,
+                    notes: transferForm.notes
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to submit transfer request');
+            }
+            fetchData();
+            setTransferForm({ assetId: '1', recipientName: '', notes: '' });
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Supervisor Approvals
-    const handleApproveClearance = (reqId) => {
-        const req = clearanceRequests.find(r => r.id === reqId);
-        if (!req) return;
-
-        // Swap custodian and clear pending status
-        setAssets(assets.map(a => a.name === req.assetName ? { ...a, status: 'ALLOCATED', custodian: req.toUser, department: req.department } : a));
-        setClearanceRequests(clearanceRequests.filter(r => r.id !== reqId));
-        setActivities([
-            { id: Date.now(), text: `Transfer of ${req.assetName} to ${req.toUser} approved`, time: 'Just now', badge: 'allocation' },
-            ...activities
-        ]);
+    const handleApproveClearance = async (reqId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/clearance/${reqId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to approve clearance');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
-    const handleRejectClearance = (reqId) => {
-        const req = clearanceRequests.find(r => r.id === reqId);
-        if (!req) return;
-
-        // Restore allocated status
-        setAssets(assets.map(a => a.name === req.assetName ? { ...a, status: 'ALLOCATED' } : a));
-        setClearanceRequests(clearanceRequests.filter(r => r.id !== reqId));
-        setActivities([
-            { id: Date.now(), text: `Transfer of ${req.assetName} to ${req.toUser} rejected`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
+    const handleRejectClearance = async (reqId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/clearance/${reqId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to reject clearance');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Employee initiates Return Sequence
-    const handleReturnAsset = (assetId) => {
-        const targetAsset = assets.find(a => a.id === assetId);
-        if (!targetAsset) return;
-
-        setAssets(assets.map(a => a.id === assetId ? { ...a, status: 'PENDING' } : a));
-        setActivities([
-            { id: Date.now(), text: `Return sequence initiated for ${targetAsset.name}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
+    const handleReturnAsset = async (assetId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/assets/${assetId}/return`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to return asset');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Asset Manager actions
-    const handleDispatchMaintenance = (issueId) => {
-        const targetIssue = issues.find(i => i.id === issueId);
-        if (!targetIssue) return;
-
-        setIssues(issues.map(i => i.id === issueId ? { ...i, status: 'Under Maintenance' } : i));
-        setAssets(assets.map(a => a.name === targetIssue.assetName ? { ...a, status: 'PENDING', custodian: 'Maintenance Shop' } : a));
-        setActivities([
-            { id: Date.now(), text: `Dispatched technician for ${targetIssue.assetName}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
+    const handleDispatchMaintenance = async (issueId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/issues/${issueId}/dispatch`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to dispatch maintenance');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
-    const handleResolveMaintenance = (issueId) => {
-        const targetIssue = issues.find(i => i.id === issueId);
-        if (!targetIssue) return;
-
-        setIssues(issues.filter(i => i.id !== issueId));
-        setAssets(assets.map(a => a.name === targetIssue.assetName ? { ...a, status: 'AVAILABLE', custodian: '—' } : a));
-        setActivities([
-            { id: Date.now(), text: `Maintenance resolved: ${targetIssue.assetName} returned to inventory`, time: 'Just now', badge: 'register' },
-            ...activities
-        ]);
+    const handleResolveMaintenance = async (issueId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/issues/${issueId}/resolve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to resolve maintenance');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
-    const handleMarkDiscrepancy = (assetId, type) => {
-        // Mark missing or damaged
-        setAssets(assets.map(a => a.id === assetId ? { ...a, status: type } : a));
-        setActivities([
-            { id: Date.now(), text: `Audit check: ${assets.find(a => a.id === assetId).name} marked as ${type}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
+    const handleMarkDiscrepancy = async (assetId, type) => {
+        try {
+            const response = await fetch(`${API_URL}/api/assets/${assetId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: type })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to update asset status');
+            }
+            fetchData();
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // Basic Action triggers
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         if (!registerForm.name.trim()) return;
 
-        const newAsset = {
-            id: Date.now(),
-            name: registerForm.name,
-            type: registerForm.type,
-            location: registerForm.location || 'Central Hub',
-            status: 'AVAILABLE',
-            custodian: '—',
-            department: '—'
-        };
-
-        setAssets([newAsset, ...assets]);
-        setActivities([
-            { id: Date.now(), text: `New ${registerForm.name} registered into database`, time: 'Just now', badge: 'register' },
-            ...activities
-        ]);
-
-        setRegisterForm({ name: '', type: 'Electronics', location: '' });
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/assets`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: registerForm.name,
+                    type: registerForm.type,
+                    location: registerForm.location || 'Central Hub',
+                    custodian: '—',
+                    department: '—',
+                    status: 'AVAILABLE',
+                    is_shared_bookable: false
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to register asset');
+            }
+            fetchData();
+            setRegisterForm({ name: '', type: 'Electronics', location: '' });
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
-    const handleBook = (e) => {
+    const handleBook = async (e) => {
         e.preventDefault();
         if (!bookForm.timeSlot || !bookForm.date) return;
 
-        const newBooking = {
-            id: Date.now(),
-            name: bookForm.resource,
-            type: 'AV System',
-            location: 'Meeting Room C',
-            status: 'ACTIVE BOOKING',
-            custodian: 'Alex Johnson',
-            department: 'Engineering'
-        };
-
-        setAssets([newBooking, ...assets]);
-        setActivities([
-            { id: Date.now(), text: `${bookForm.priority ? '[PRIORITY] ' : ''}${bookForm.resource} reserved for ${bookForm.date}`, time: 'Just now', badge: 'booking' },
-            ...activities
-        ]);
-
-        setBookForm({ resource: 'Meeting Room C', timeSlot: '', date: '', priority: false });
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    resource: bookForm.resource,
+                    timeSlot: bookForm.timeSlot,
+                    date: bookForm.date,
+                    priority: bookForm.priority
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to reserve resource');
+            }
+            fetchData();
+            setBookForm({ resource: 'Meeting Room C', timeSlot: '', date: '', priority: false });
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
-    const handleRequest = (e) => {
+    const handleRequest = async (e) => {
         e.preventDefault();
-        const selectedAsset = assets.find(a => a.id === parseInt(requestForm.assetId));
-        if (!selectedAsset) return;
+        const targetAssetId = parseInt(requestForm.assetId);
+        const targetAsset = assets.find(a => a.id === targetAssetId);
+        if (!targetAsset) return;
 
-        setAssets(assets.map(a => a.id === selectedAsset.id ? { ...a, status: 'PENDING' } : a));
-        setActivities([
-            { id: Date.now(), text: `Requisition request submitted for ${selectedAsset.name}`, time: 'Just now', badge: 'pending' },
-            ...activities
-        ]);
-
-        setModalOpen(null);
+        try {
+            const response = await fetch(`${API_URL}/api/clearance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    assetId: targetAssetId,
+                    recipientName: currentUser ? currentUser.name : 'Jane Smith',
+                    notes: requestForm.notes || 'Asset Requisition'
+                })
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to request asset');
+            }
+            fetchData();
+            setModalOpen(null);
+        } catch (err) {
+            alert(err.message);
+        }
     };
 
     // ----------------------------------------------------
@@ -327,11 +472,11 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
     };
 
     // Calculate metrics
-    const totalAssets = 24;
+    const totalAssets = assets.length;
     const totalAssetsCount = totalAssets;
-    const availableCountTotal = assets.filter(a => a.status === 'AVAILABLE').length + 10;
-    const activeBookingCountTotal = assets.filter(a => a.status === 'ACTIVE BOOKING').length + 4;
-    const pendingCountTotal = assets.filter(a => a.status === 'PENDING').length + 2;
+    const availableCountTotal = assets.filter(a => a.status === 'AVAILABLE').length;
+    const activeBookingCountTotal = assets.filter(a => a.status === 'ACTIVE BOOKING').length;
+    const pendingCountTotal = assets.filter(a => a.status === 'PENDING').length;
 
     // Filter table view assets by role
     const getRoleFilteredAssets = () => {
@@ -339,7 +484,8 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
         
         if (role === 'Employee') {
             // Employee sees items assigned to them OR available resources
-            baseList = assets.filter(a => a.custodian === 'Alex Johnson' || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
+            const currentUserName = currentUser ? currentUser.name : '';
+            baseList = assets.filter(a => a.custodian === currentUserName || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
         } else if (role === 'Dept Head') {
             // Dept Head sees department equipment
             baseList = assets.filter(a => a.department === 'Engineering' || a.status === 'AVAILABLE' || a.status === 'ACTIVE BOOKING');
@@ -399,9 +545,11 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
 
                     {/* User profile dropdown - click to sign out */}
                     <div className="user-profile-badge-group-hifi" onClick={onLogout} title="Sign Out">
-                        <div className="user-profile-circle">AF</div>
+                        <div className="user-profile-circle">
+                            {currentUser ? currentUser.name.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase() : 'AF'}
+                        </div>
                         <div className="user-profile-info-text">
-                            <span className="profile-name-span">Alex Johnson</span>
+                            <span className="profile-name-span">{currentUser ? currentUser.name : 'Unknown User'}</span>
                             <span className="profile-role-span">{role === 'Dept Head' ? 'Dept Head' : role}</span>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="profile-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -412,7 +560,7 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
             {/* Welcome banner and role info */}
             <div className="welcome-banner-section-hifi">
                 <div className="welcome-text-block">
-                    <span className="welcome-greet">Welcome back, Alex! 👋</span>
+                    <span className="welcome-greet">Welcome back, {currentUser ? currentUser.name.split(' ')[0] : 'User'}! 👋</span>
                     <h1 className="welcome-title">Manage <span className="highlight-dashboard">Dashboard</span></h1>
                     <p className="welcome-sub">Here's an overview of your assets and activities.</p>
                 </div>
@@ -756,7 +904,7 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
                                                 </td>
                                                 <td>
                                                     {/* Context-aware action buttons depending on active logged in Role */}
-                                                    {role === 'Employee' && asset.custodian === 'Alex Johnson' && (
+                                                    {role === 'Employee' && asset.custodian === (currentUser ? currentUser.name : '') && (
                                                         <div style={{ display: 'flex', gap: '8px' }}>
                                                             <button onClick={() => handleReturnAsset(asset.id)} className="btn-table-view-hifi" style={{ background: '#fef2f2', color: '#ef4444' }}>
                                                                 Return
@@ -777,7 +925,7 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
                                                         </div>
                                                     )}
                                                     {/* Default fallback View pill */}
-                                                    {!(role === 'Employee' && asset.custodian === 'Alex Johnson') && !(role === 'Asset Manager') && (
+                                                    {!(role === 'Employee' && asset.custodian === (currentUser ? currentUser.name : '')) && !(role === 'Asset Manager') && (
                                                         <button className="btn-table-view-hifi">
                                                             View
                                                         </button>
@@ -1061,7 +1209,7 @@ export default function Dashboard({ role, onLogout, theme, toggleTheme }) {
                                         value={issueForm.assetId}
                                         onChange={(e) => setIssueForm({...issueForm, assetId: e.target.value})}
                                     >
-                                        {assets.filter(a => a.custodian === 'Alex Johnson').map(a => (
+                                        {assets.filter(a => a.custodian === (currentUser ? currentUser.name : '')).map(a => (
                                             <option key={a.id} value={a.id}>{a.name}</option>
                                         ))}
                                     </select>
