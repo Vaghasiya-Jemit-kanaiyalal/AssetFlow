@@ -75,7 +75,6 @@ CREATE TABLE IF NOT EXISTS resource_bookings (
     INDEX idx_bookings_overlap (asset_id, status, start_time, end_time)
 );
 
--- 7. Maintenance Request Pipelines
 CREATE TABLE IF NOT EXISTS maintenance_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     asset_id INT NOT NULL,
@@ -89,7 +88,6 @@ CREATE TABLE IF NOT EXISTS maintenance_requests (
     FOREIGN KEY (raised_by) REFERENCES employees(id)
 );
 
--- 8. Physical Audit Tracking Items
 CREATE TABLE IF NOT EXISTS audit_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     asset_id INT NOT NULL,
