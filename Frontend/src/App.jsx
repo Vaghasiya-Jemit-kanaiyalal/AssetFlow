@@ -5,18 +5,19 @@ import ForgotPassword from './components/ForgotPassword';
 import Dashboard from './components/Dashboard';
 
 export default function App() {
-    const [view, setView] = useState('login'); // 'login', 'signup', or 'dashboard'
-    const [userRole, setUserRole] = useState('Employee');
+    const [token, setToken] = useState(localStorage.getItem('token') || '');
+    const [currentUser, setCurrentUser] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('user')) || null;
+        } catch {
+            return null;
+        }
+    });
+    const [view, setView] = useState(() => {
+        return localStorage.getItem('token') ? 'dashboard' : 'login';
+    });
     const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
     const [theme, setTheme] = useState('light'); // 'light' or 'dark' by default
-
-    // In-memory mock database of registered users and their admin-assigned roles
-    const [usersDatabase, setUsersDatabase] = useState([
-        { email: 'alex@company.com', role: 'Employee', name: 'Alex Johnson' },
-        { email: 'bruce@company.com', role: 'Dept Head', name: 'Dr. Bruce Banner' },
-        { email: 'tony@company.com', role: 'Asset Manager', name: 'Tony Stark' },
-        { email: 'admin@company.com', role: 'Admin', name: 'Nick Fury' }
-    ]);
 
     const toggleTheme = () => {
         const nextTheme = theme === 'light' ? 'dark' : 'light';
@@ -31,24 +32,19 @@ export default function App() {
     // Switch view handler that resolves email addresses to roles dynamically
     const handleSwitchView = (newView, payload) => {
         setView(newView);
-        if (newView === 'dashboard') {
-            const user = usersDatabase.find(u => u.email.toLowerCase() === payload.toLowerCase());
-            if (user) {
-                setUserRole(user.role);
-            } else {
-                setUserRole('Employee'); // Default assigned role for newly registered emails
-            }
-        }
-    };
-
-    const handleSignUpUser = (email, name) => {
-        const userExists = usersDatabase.some(u => u.email.toLowerCase() === email.toLowerCase());
-        if (!userExists) {
-            setUsersDatabase([...usersDatabase, { email, name, role: 'Employee' }]);
+        if (newView === 'dashboard' && payload && payload.token) {
+            setToken(payload.token);
+            setCurrentUser(payload.user);
+            localStorage.setItem('token', payload.token);
+            localStorage.setItem('user', JSON.stringify(payload.user));
         }
     };
 
     const handleLogout = () => {
+        setToken('');
+        setCurrentUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setView('login');
     };
 
@@ -70,7 +66,9 @@ export default function App() {
 
             {view === 'dashboard' ? (
                 <Dashboard 
-                    role={userRole}
+                    role={currentUser ? currentUser.role : 'Employee'}
+                    token={token}
+                    currentUser={currentUser}
                     onLogout={handleLogout}
                     theme={theme}
                     toggleTheme={toggleTheme}
@@ -85,7 +83,6 @@ export default function App() {
             ) : (
                 <SignUp 
                     onSwitchView={handleSwitchView} 
-                    onSignUpUser={handleSignUpUser}
                     theme={theme}
                     toggleTheme={toggleTheme}
                 />

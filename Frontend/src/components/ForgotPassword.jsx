@@ -78,7 +78,7 @@ export default function ForgotPassword({ isOpen, onClose }) {
                                     id="forgot-email"
                                     type="email"
                                     ref={inputRef}
-                                    placeholder="name@company.com"
+                                    placeholder="name@assetflow.com"
                                     value={email}
                                     onChange={(e) => {
                                         setEmail(e.target.value);

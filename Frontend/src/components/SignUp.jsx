@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import LeftPanel from './LeftPanel';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+
 export default function SignUp({ onSwitchView, onSignUpUser, theme, toggleTheme }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -23,7 +26,7 @@ export default function SignUp({ onSwitchView, onSignUpUser, theme, toggleTheme 
         setTimeout(() => setShakingField(null), 400);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const newErrors = {};
         let isValid = true;
@@ -68,13 +71,31 @@ export default function SignUp({ onSwitchView, onSignUpUser, theme, toggleTheme 
 
         if (isValid) {
             setLoading(true);
-            setTimeout(() => {
-                setLoading(false);
-                if (onSignUpUser) {
-                    onSignUpUser(email.trim(), name.trim());
+            try {
+                const response = await fetch(`${API_URL}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name.trim(),
+                        email: email.trim(),
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
                 }
+
+                setLoading(false);
                 setIsRegistered(true);
-            }, 1200);
+            } catch (err) {
+                setLoading(false);
+                setErrors(prev => ({ ...prev, apiError: err.message }));
+            }
         }
     };
 
@@ -132,6 +153,20 @@ export default function SignUp({ onSwitchView, onSignUpUser, theme, toggleTheme 
                 </div>
 
                 <form onSubmit={handleSubmit} className="auth-form" noValidate>
+                    {errors.apiError && (
+                        <div className="error-msg" style={{ 
+                            marginBottom: '14px', 
+                            textAlign: 'center', 
+                            background: '#fef2f2', 
+                            padding: '8px 12px', 
+                            borderRadius: '6px',
+                            color: '#ef4444',
+                            fontSize: '0.8rem',
+                            border: '1px solid #fee2e2'
+                        }}>
+                            ⚠️ {errors.apiError}
+                        </div>
+                    )}
                     {/* Full Name field */}
                     <div className={`form-group ${errors.name ? 'has-error' : ''} ${shakingField === 'name' ? 'shake' : ''}`}>
                         <label htmlFor="name">Full Name</label>
@@ -170,7 +205,7 @@ export default function SignUp({ onSwitchView, onSignUpUser, theme, toggleTheme 
                             <input
                                 id="email"
                                 type="email"
-                                placeholder="name@company.com"
+                                placeholder="name@assetflow.com"
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);

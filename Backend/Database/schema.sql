@@ -207,39 +207,8 @@ INSERT INTO category_strategies (category, warranty_coverage, safety_audit) VALU
 ('AV System', '24 Months', 'Quarterly'),
 ('Vehicle', '60 Months', 'Annually');
 
--- Seed default users (all passwords are 'password')
--- Passwords are hashed using bcrypt: $2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm
+-- Seed default users (admin: admin@assetflow.com, maintenance shop: maintenance@assetflow.com, passwords: '12345678')
+-- Passwords are hashed using bcrypt: $2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW
 INSERT INTO users (name, email, password_hash, role, department) VALUES
-('Alex Johnson', 'alex@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Employee', 'Engineering'),
-('Dr. Bruce Banner', 'bruce@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Dept Head', 'Engineering'),
-('Tony Stark', 'tony@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Asset Manager', 'Operations'),
-('Nick Fury', 'admin@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Admin', 'Executive'),
-('Maintenance Shop', 'maintenance@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Employee', 'Maintenance'),
-('Sarah Connor', 'sarah@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Employee', 'Marketing'),
-('Jane Smith', 'jane@company.com', '$2a$10$r/d7Q9siemucLDiunIuzEOEf3qPRPzFmirguVKc4/YLp4UYwTtQmm', 'Employee', 'Engineering');
-
--- Seed default assets
--- Category IDs: Electronics is 1, Furniture is 2, AV System is 3, Vehicle is 4
--- Custodians: Alex Johnson (1), Dr. Bruce Banner (2)
-INSERT INTO assets (id, name, asset_tag, serial_number, category_id, location, lifecycle_status, custodian_id, department, is_shared_bookable) VALUES
-(1, 'MacBook Pro 16"', 'AST-MAC-16-001', 'SN-MAC-16-001', 1, 'London Hub', 'ALLOCATED', 1, 'Engineering', FALSE),
-(2, 'Ergonomic Desk Chair', 'AST-CHR-002', 'SN-CHR-002', 2, 'Room 302', 'AVAILABLE', NULL, '—', FALSE),
-(3, 'Conference Room C Video System', 'AST-AVS-003', 'SN-AVS-003', 3, 'Meeting Room C', 'ACTIVE BOOKING', 6, 'Marketing', TRUE),
-(4, 'Toyota Prius (Company Pool)', 'AST-CAR-004', 'SN-CAR-004', 4, 'Garage A', 'PENDING', 5, 'Operations', TRUE),
-(5, 'Dell UltraSharp 32" Monitor', 'AST-MON-032', 'SN-MON-032', 1, 'Warehouse 1', 'AVAILABLE', NULL, '—', FALSE),
-(6, 'Department Head Desk Laptop', 'AST-LAP-405', 'SN-LAP-405', 1, 'Office 405', 'ALLOCATED', 2, 'Engineering', FALSE);
-
--- Seed default issue logs
-INSERT INTO issues (id, asset_id, reported_by_id, details, photo_description, status) VALUES
-(1, 6, 2, 'Battery swelling and keyboard keys unresponsive', 'swollen_battery.png', 'Awaiting Action');
-
--- Seed default clearance requests
-INSERT INTO clearance_requests (id, asset_id, request_type, from_user_id, to_user_id, notes, status) VALUES
-(1, 1, 'Transfer', 1, 7, 'Handing off code workstation', 'Pending');
-
--- Seed default activities
-INSERT INTO activities (id, text, badge) VALUES
-(1, 'Alex Johnson checked out MacBook Pro 16"', 'allocation'),
-(2, 'Meeting Room C booked by Sarah Connor', 'booking'),
-(3, 'Maintenance Shop requested Toyota Prius allocation', 'pending'),
-(4, 'New Ergonomic Desk Chair registered', 'register');
+('AssetFlow Admin', 'admin@assetflow.com', '$2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW', 'Admin', 'Executive'),
+('Maintenance Shop', 'maintenance@assetflow.com', '$2a$10$8GTU8ltIZBi2bLKlx4TzeezxdMe0lDx4nVPkffxDAL4VOzfUlpuVW', 'Employee', 'Maintenance');
